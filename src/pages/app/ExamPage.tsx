@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, CheckCircle2, ChevronRight, Clock, Award, AlertCircle, HelpCircle, HardDrive, Palette, Calculator } from 'lucide-react';
+import { BookOpen, CheckCircle2, ChevronRight, Clock, Award, AlertCircle, HelpCircle, HardDrive, Palette, Calculator, Loader2 } from 'lucide-react';
+import { examService } from '../../services/examService';
+import { supabase } from '../../lib/supabase';
 
 type Major = 'TKJ' | 'DKV' | 'AK';
 
@@ -133,8 +135,34 @@ export default function ExamPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isFinished, setIsFinished] = useState(false);
   const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(3600); // 60 minutes
+  const [saving, setSaving] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (selectedMajor && !isFinished && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    } else if (timeLeft === 0 && !isFinished) {
+      finishExam();
+    }
+  }, [selectedMajor, isFinished, timeLeft]);
 
   const QUESTIONS = selectedMajor ? QUESTION_BANK[selectedMajor] : [];
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleMajorSelect = (major: Major) => {
     setSelectedMajor(major);
@@ -158,7 +186,7 @@ export default function ExamPage() {
     }
   };
 
-  const finishExam = () => {
+  const finishExam = async () => {
     let correctCount = 0;
     QUESTIONS.forEach((q, i) => {
       if (answers[i] === q.correctAnswer) {
@@ -168,6 +196,20 @@ export default function ExamPage() {
     const finalScore = Math.round((correctCount / QUESTIONS.length) * 100);
     setScore(finalScore);
     setIsFinished(true);
+    setSaving(true);
+
+    try {
+      await examService.submitResult({
+        student_name: user?.user_metadata?.full_name || user?.email || 'Siswa',
+        nisn: user?.user_metadata?.nisn || '000000',
+        score: finalScore,
+        major: selectedMajor || 'Umum'
+      });
+    } catch (err) {
+      console.error('Gagal menyimpan hasil:', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!selectedMajor) {
@@ -265,7 +307,7 @@ export default function ExamPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-xl text-slate-500 font-bold text-xs border border-slate-100">
-              <Clock size={16} className="text-red-600" /> 01:24:45
+              <Clock size={16} className={timeLeft < 300 ? 'text-red-600 animate-pulse' : 'text-emerald-600'} /> {formatTime(timeLeft)}
             </div>
           </div>
 
@@ -309,9 +351,10 @@ export default function ExamPage() {
             {currentQuestion === QUESTIONS.length - 1 ? (
               <button 
                 onClick={finishExam}
-                className="px-10 py-4 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 shadow-xl shadow-red-200 transition-all uppercase text-sm tracking-widest"
+                disabled={saving}
+                className="px-10 py-4 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 shadow-xl shadow-red-200 transition-all uppercase text-sm tracking-widest disabled:opacity-50 flex items-center gap-2"
               >
-                Selesai Ujian
+                {saving ? <Loader2 className="animate-spin" size={18} /> : 'Selesai Ujian'}
               </button>
             ) : (
               <button 
