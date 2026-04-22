@@ -1,20 +1,35 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# SMK Prima Unggul - Sistem Ujian Online & Absensi Terpadu
 
-# Run and deploy your AI Studio app
+Aplikasi web modern untuk manajemen sekolah yang mencakup fitur Absensi Karyawan, Absensi Siswa, dan Ujian Online berbasis kejuruan.
 
-This contains everything you need to run your app locally.
+## Fitur Utama
+- **Login Multi-Role**: Sistem login aman untuk Guru (Email) dan Siswa (NISN).
+- **Ujian Online 30 Soal**: Bank soal spesifik untuk jurusan TKJ, DKV, dan Akuntansi dengan KKM 70.
+- **Absensi Real-time**: Pencatatan kehadiran karyawan dan siswa yang terintegrasi dengan database.
+- **Teknologi Modern**: Dibangun menggunakan React 18, Vite, Tailwind CSS, dan Supabase.
+- **SPA Routing**: Navigasi mulus tanpa reload menggunakan Express server untuk menghindari error 404.
 
-View your app in AI Studio: https://ai.studio/apps/0df5be82-8a8a-49a0-bcea-b6f9beaebe22
+## Cara Instalasi Lokal
+1. Clone repositori ini:
+   ```bash
+   git clone <url-repo-anda>
+   ```
+2. Instal dependensi:
+   ```bash
+   npm install
+   ```
+3. Setel Environment Variables (.env):
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+4. Jalankan aplikasi:
+   ```bash
+   npm run dev
+   ```
 
-## Run Locally
+## Konfigurasi Database
+Aplikasi ini menggunakan Supabase. Kode SQL untuk membuat tabel, trigger, dan kebijakan keamanan (RLS) tersedia di dalam direktori proyek ini (atau bisa merujuk pada histori chat di AI Studio).
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+---
+*Dibuat dengan dedikasi untuk kemajuan pendidikan di SMK Prima Unggul.*
