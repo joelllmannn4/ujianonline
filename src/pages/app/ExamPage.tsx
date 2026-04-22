@@ -135,7 +135,7 @@ export default function ExamPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isFinished, setIsFinished] = useState(false);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(3600); // 60 minutes
+  const [timeLeft, setTimeLeft] = useState(1800); // 30 minutes (Updated from 60)
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<any>(null);
 
